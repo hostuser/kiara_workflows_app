@@ -2,3 +2,5 @@ kiara
 kiara_plugin.network_analysis
 kiara_plugin.onboarding
 git+https://github.com/DHARPA-project/kiara_plugin.streamlit@develop
+boltons
+PyGithub
