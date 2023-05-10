@@ -9,6 +9,8 @@ from boltons.strutils import slugify
 from github import Github, UnknownObjectException
 from github.ContentFile import ContentFile
 from github.InputGitAuthor import InputGitAuthor
+from githublfs import commit_lfs_file
+from streamlit.elements.file_uploader import SomeUploadedFiles
 
 from kiara_plugin.streamlit.modules import DummyModuleConfig
 
@@ -101,7 +103,19 @@ def write_file_to_github(path: str, data) -> None:
         )
 
 
-def load_and_parse_file(filepath):
+def write_example_data_file_to_github(target_directory: str, files: SomeUploadedFiles):
+    for f in files:
+        commit_lfs_file(
+            repo=REPO_NAME,
+            token=GITHUB_API_KEY,
+            branch=BRANCH,
+            path=f"{target_directory}/{f.name}",
+            content=f.getvalue(),
+            message=f"add input data: {f.name}",
+        )
+
+
+def load_and_parse_file(filepath: str):
     workflow_file = fetch_existing_file_from_github(filepath)
     if workflow_file:
         existing_data = json.loads(workflow_file.decoded_content.decode("utf-8"))
