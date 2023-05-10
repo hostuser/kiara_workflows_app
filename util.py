@@ -15,7 +15,7 @@ from kiara_plugin.streamlit.modules import DummyModuleConfig
 
 REPO_NAME = st.secrets.get("github_repo_path")
 GITHUB_API_KEY = st.secrets.get("github_api_key")
-
+BRANCH = "main"
 COMMITTER = InputGitAuthor("kiara-streamlit", "streamlit@example.com")
 # TODO are there better details we could use here ^^?
 
@@ -86,7 +86,7 @@ def write_file_to_github(path: str, data) -> None:
             message=f"update data {datetime.datetime.utcnow()}",
             content=data,
             sha=existing_file.sha,
-            branch="main",
+            branch=BRANCH,
             committer=COMMITTER,
             author=COMMITTER,
         )
@@ -95,7 +95,7 @@ def write_file_to_github(path: str, data) -> None:
             path,
             message="create workflow",
             content=data,
-            branch="main",
+            branch=BRANCH,
             committer=COMMITTER,
             author=COMMITTER,
         )
@@ -111,7 +111,7 @@ def load_and_parse_file(filepath):
         st.warning("No saved workflow found")
 
 
-def serialize_workflow_to_github(filepath):
+def serialize_workflow_to_github(filepath: str):
     pc = DummyModuleConfig.create_pipeline_config(
         st.session_state["workflow_title"],
         f"{st.session_state['workflow_description']}{RESEARCH_QUESTIONS_DELIMITER}{st.session_state['workflow_research']}",

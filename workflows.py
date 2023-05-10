@@ -37,11 +37,13 @@ workflow_title = st.text_input(
 if not (workflow_title and contact_email):
     st.info("Please enter your email and workflow title, then press enter.")
 else:
-    workflow_path = f"{contact_email}/{slugify(workflow_title)}/pipeline.json"
+    workflow_base_path = f"{contact_email}/{slugify(workflow_title)}"
+    workflow_pipeline_path = f"{workflow_base_path}/pipeline.json"
+    workflow_data_path = f"{workflow_base_path}/data"
 
     edit = st.button("load existing workflow for editing?")
     if edit:
-        load_and_parse_file(workflow_path)
+        load_and_parse_file(workflow_pipeline_path)
 
     st.text_area(
         "Describe what your workflow achieves",
@@ -102,8 +104,7 @@ else:
 
     create = st.button("Save workflow", type="primary")
     if create:
-        serialize_workflow_to_github(workflow_path)
-        st.write(st.session_state)
+        serialize_workflow_to_github(workflow_pipeline_path)
         toast = st.empty()
         toast.success("Saved workflow")
         time.sleep(3)
