@@ -60,6 +60,37 @@ else:
         key="workflow_research",
         height=100,
     )
+    st.write("## Input data samples")
+
+    input_details = st.text_area(
+        label="Tell us about the input data for your workflow", key="input_details"
+    )
+    with st.expander("What should I write here?"):
+        st.write(
+            """Tell us as much as you can about the data you use as input for your workflow. This could include things like:
+- Where does the data come from?
+- What license does it have?
+- What file format(s) is it in? How big are the files, how many files?
+- What structural properties do these files have?
+    - do the filenames mean something?
+    - if there's a spreadsheet, what are the column headers?
+    - if it represents network data, how many nodes and edges, does it have self-loops etc"""
+        )
+
+    st.write(
+        "If the data you use as input to your workflows is freely licensed, please upload a sample of it here."
+    )
+    input_data = st.file_uploader("Choose file(s)", accept_multiple_files=True)
+
+    save_input_data = st.button("Save input data information", type="primary")
+    if save_input_data:
+        toast = st.empty()
+        toast.info("Saving...")
+        write_file_to_github(f"{workflow_data_path}/README.md", input_details)
+        write_example_data_file_to_github(workflow_data_path, input_data)
+        toast.success("Saved input data information")
+        time.sleep(3)
+        toast.write("")
 
     st.write("## Workflow steps")
     st.write("Describe the individual steps you do in your workflow at the moment.")
@@ -118,31 +149,3 @@ else:
         "Don't refresh the page or close this tab until you've saved your workflow!"
     )
 
-    st.write("## Input data samples")
-    st.write(
-        """Tell us as much as you can about the data you use as input for your workflow. This could include things like:
-- Where does the data come from?
-- What license does it have?
-- What file format(s) is it in? How big are the files, how many files?
-- What structural properties do these files have?
-    - do the filenames mean something?
-    - if there's a spreadsheet, what are the column headers?
-    - if it represents network data, how many nodes and edges, does it have self-loops etc"""
-    )
-    input_details = st.text_area(
-        label="Workflow input data details", key="input_details"
-    )
-    st.write(
-        "If the data you use as input to your workflows is freely licensed, please upload a sample of it here."
-    )
-    input_data = st.file_uploader("Choose file(s)", accept_multiple_files=True)
-
-    save_input_data = st.button("Save input data information", type="primary")
-    if save_input_data:
-        toast = st.empty()
-        toast.info("Saving...")
-        write_file_to_github(f"{workflow_data_path}/README.md", input_details)
-        write_example_data_file_to_github(workflow_data_path, input_data)
-        toast.success("Saved input data information")
-        time.sleep(3)
-        toast.write("")
