@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
+import json
 import time
 
 import streamlit as st
 from boltons.strutils import slugify
 
 from kiara.api import KiaraAPI
-
+from kiara.exceptions import InvalidPipelineStepConfig
 import kiara_plugin.streamlit as kst
 
 from util import (
-    load_and_parse_file,
-    serialize_workflow_to_github,
+    input_metadata_to_session_state,
+    list_input_data_dir,
+    load_and_parse_workflow_file,
+    session_state_to_pipeline_config,
+    write_example_data_files_to_github,
     write_file_to_github,
-    write_example_data_file_to_github,
+    write_input_metadata_file_to_github,
 )
 
 kst.init()
@@ -44,11 +48,23 @@ else:
     workflow_base_path = f"{contact_email}/{slugify(workflow_title)}"
     workflow_pipeline_path = f"{workflow_base_path}/pipeline.json"
     workflow_data_path = f"{workflow_base_path}/data"
+    already_uploaded_filenames = []
 
     edit = st.button("load existing workflow for editing?")
     if edit:
-        load_and_parse_file(workflow_pipeline_path)
+        with st.empty():
+            st.info("Looking for existing workflow")
+            try:
+                load_and_parse_workflow_file(workflow_pipeline_path)
+                already_uploaded_filenames = list_input_data_dir(workflow_data_path)
+                input_metadata_to_session_state(workflow_data_path)
+            except Exception as e:
+                print(e)
+                st.error(
+                    "Something went wrong with loading your workflow. Please let the Kiara team know, and try again later."
+                )
 
+    st.write("## About your workflow")
     st.text_area(
         "Describe what your workflow achieves",
         key="workflow_description",
@@ -60,8 +76,8 @@ else:
         key="workflow_research",
         height=100,
     )
-    st.write("## Input data samples")
 
+    st.write("## Input data samples")
     input_details = st.text_area(
         label="Tell us about the input data for your workflow", key="input_details"
     )
@@ -74,29 +90,35 @@ else:
 - What structural properties do these files have?
     - do the filenames mean something?
     - if there's a spreadsheet, what are the column headers?
-    - if it represents network data, how many nodes and edges, does it have self-loops etc"""
+    - if it represents network data, how many nodes and edges, does it have self-loops etc
+"""
         )
 
     st.write(
         "If the data you use as input to your workflows is freely licensed, please upload a sample of it here."
     )
     input_data = st.file_uploader("Choose file(s)", accept_multiple_files=True)
+    if already_uploaded_filenames:
+        st.info(
+            f"You've already uploaded these files:\n{''.join(already_uploaded_filenames)}"
+        )
 
     save_input_data = st.button("Save input data information", type="primary")
     if save_input_data:
-        toast = st.empty()
-        toast.info("Saving...")
-        write_file_to_github(f"{workflow_data_path}/README.md", input_details)
-        write_example_data_file_to_github(workflow_data_path, input_data)
-        toast.success("Saved input data information")
-        time.sleep(3)
-        toast.write("")
+        with st.empty():
+            st.info("Saving...")
+            try:
+                write_input_metadata_file_to_github(workflow_data_path, input_details)
+                write_example_data_files_to_github(workflow_data_path, input_data)
+                st.success("Saved input data information")
+            except Exception as e:
+                print(e)
+                st.error(
+                    "Something went wrong with saving your input data. Please let the Kiara team know, and try again later"
+                )
 
     st.write("## Workflow steps")
     st.write("Describe the individual steps you do in your workflow at the moment.")
-
-    # TODO give example steps in an expander and/or placeholders here?
-
     for idx, step in steps.items():
         title, desc, inputs, outputs = (
             step["title"],
@@ -106,7 +128,7 @@ else:
         )
         st.write(f"### Step {idx + 1}")
         steps[idx]["title"] = st.text_input(
-            "What does this step do?",
+            "What does this step do? (required)",
             value=title,
             key=f"title_step_{idx}",
             placeholder="Load network data into a Python data structure",
@@ -124,7 +146,7 @@ else:
             placeholder="A networkX graph structure from ",
         )
         steps[idx]["desc"] = st.text_area(
-            "Any technical details about how you do this step currently? (optional)",
+            "Any technical details about how you do this step currently?",
             value=desc,
             key=f"desc_step_{idx}",
             placeholder="What existing software or packages do you use?",
@@ -139,13 +161,27 @@ else:
 
     create = st.button("Save workflow", type="primary")
     if create:
-        serialize_workflow_to_github(workflow_pipeline_path)
-        toast = st.empty()
-        toast.success("Saved workflow")
-        time.sleep(3)
-        toast.write("")
+        with st.empty():
+            st.info("Saving...")
+            pipeline_config = None
+            try:
+                pipeline_config = session_state_to_pipeline_config()
+                write_file_to_github(
+                    workflow_pipeline_path, json.dumps(pipeline_config.dict(), indent=2)
+                )
+                st.success("Saved workflow")
+                time.sleep(3)
+                st.write("")
+            except InvalidPipelineStepConfig:
+                st.error(
+                    "Couldn't save workflow. Please make sure all your steps have something in the required field 'What does this step do?'"
+                )
+            except Exception as e:
+                print(e)
+                st.error(
+                    f"Something went wrong with saving your workflow. Please let the Kiara team know, and try again later.\nHere's a representation of your workflow, which you can send to the Kiara team: \n {pipeline_config.dict() if pipeline_config else st.session_state}"
+                )
 
     st.warning(
         "Don't refresh the page or close this tab until you've saved your workflow!"
     )
-
