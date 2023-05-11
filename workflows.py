@@ -29,6 +29,13 @@ else:
     steps = {}
     st.session_state["steps"] = steps
 
+if "already_uploaded_filenames" in st.session_state.keys():
+    already_uploaded_filenames = st.session_state["already_uploaded_filenames"]
+else:
+    already_uploaded_filenames = []
+    st.session_state["already_uploaded_filenames"] = already_uploaded_filenames
+
+
 st.write("# Kiara workflow collection")
 # TODO: explain what Kiara is and give a link to docs, explain what we mean by a workflow.
 
@@ -48,7 +55,6 @@ else:
     workflow_base_path = f"{contact_email}/{slugify(workflow_title)}"
     workflow_pipeline_path = f"{workflow_base_path}/pipeline.json"
     workflow_data_path = f"{workflow_base_path}/data"
-    already_uploaded_filenames = []
 
     edit = st.button("load existing workflow for editing?")
     if edit:
@@ -56,7 +62,9 @@ else:
             st.info("Looking for existing workflow")
             try:
                 load_and_parse_workflow_file(workflow_pipeline_path)
-                already_uploaded_filenames = list_input_data_dir(workflow_data_path)
+                st.session_state["already_uploaded_filenames"] = list_input_data_dir(
+                    workflow_data_path
+                )
                 input_metadata_to_session_state(workflow_data_path)
             except Exception as e:
                 print(e)
@@ -98,9 +106,9 @@ else:
         "If the data you use as input to your workflows is freely licensed, please upload a sample of it here."
     )
     input_data = st.file_uploader("Choose file(s)", accept_multiple_files=True)
-    if already_uploaded_filenames:
+    if st.session_state["already_uploaded_filenames"]:
         st.info(
-            f"You've already uploaded these files:\n{''.join(already_uploaded_filenames)}"
+            f"You've uploaded these files:\n{''.join(st.session_state['already_uploaded_filenames'])}"
         )
 
     save_input_data = st.button("Save input data information", type="primary")
@@ -110,7 +118,13 @@ else:
             try:
                 write_input_metadata_file_to_github(workflow_data_path, input_details)
                 write_example_data_files_to_github(workflow_data_path, input_data)
+                st.session_state["already_uploaded_filenames"] = list_input_data_dir(
+                    workflow_data_path
+                )
                 st.success("Saved input data information")
+                time.sleep(2)
+                # briefly show success message, then refresh the data shown in the info box above
+                st.experimental_rerun()
             except Exception as e:
                 print(e)
                 st.error(
