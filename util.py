@@ -1,5 +1,6 @@
 import datetime
 import json
+import string
 
 from typing import Optional, List, Dict, Any
 
@@ -133,6 +134,20 @@ def write_input_metadata_file_to_github(workflow_data_path: str, input_details: 
     )
 
 
+def serialize_workflow_to_github(filepath):
+    workflow_doc = f"{st.session_state['workflow_description']}{RESEARCH_QUESTIONS_DELIMITER}{st.session_state['workflow_research']}"
+    author = f'{st.session_state["contact_email"]} - contact consent given: {st.session_state["contact_consent"]}'
+    pc = DummyModuleConfig.create_pipeline_config(
+        st.session_state["workflow_title"],
+        workflow_doc,
+        author,
+        *state_steps_to_module_config(),
+    )
+    # st.kiara.pipeline_graph(pc) #  TODO connect step input to previous step output in order to make the graph useful?
+    write_file_to_github(filepath, json.dumps(pc.dict(), indent=2))
+    # TODO is there a way to exclude some of the duplicated info about steps here?
+
+
 def write_example_data_files_to_github(target_directory: str, files: SomeUploadedFiles):
     for f in files:
         commit_lfs_file(
@@ -165,3 +180,10 @@ def input_metadata_to_session_state(directory_path: str) -> None:
     )
     if response:
         st.session_state["input_details"] = response.decoded_content.decode("utf-8")
+
+
+def string_to_safe_directory_name(inp: str) -> str:
+    """Naive way to turn an arbitrary string into something that can be used as a directory name"""
+    safe_chars = string.ascii_letters + string.digits + " -_.@"
+    filtered = "".join([c for c in inp if c in safe_chars]).strip()
+    return filtered if 0 < len(filtered) < 128 else "unknown_user"

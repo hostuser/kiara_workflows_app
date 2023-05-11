@@ -17,6 +17,7 @@ from util import (
     write_example_data_files_to_github,
     write_file_to_github,
     write_input_metadata_file_to_github,
+    string_to_safe_directory_name,
 )
 
 kst.init()
@@ -38,11 +39,21 @@ else:
 
 st.write("# Kiara workflow collection")
 # TODO: explain what Kiara is and give a link to docs, explain what we mean by a workflow.
-
 st.write(
-    "Please tell us your email address to help us save and identify your workflows."
+    """The Kiara project is collecting information about the research workflows used by current researchers.
+This information will be used to inform the development of kiara 'modules', to ensure modules are developed to address the common steps in research workflows.
+
+Any information you provide will be stored in a private repository on GitHub, accessible only to the team working on kiara.
+
+If you choose to provide an email address, the kiara team may contact you with further questions about your research workflows.
+Your email address will not be used for any other purpose, and will not be shared outside the Kiara team."""
 )
-contact_email = st.text_input("Email address", key="contact_email")
+
+contact_email = st.text_input("Name or email address", key="contact_email")
+st.checkbox(
+    "I give permission for the Kiara team to contact me about this workflow (optional).",
+    key="contact_consent",
+)
 workflow_title = st.text_input(
     "Short title for your workflow",
     key="workflow_title",
@@ -52,10 +63,14 @@ workflow_title = st.text_input(
 if not (workflow_title and contact_email):
     st.info("Please enter your email and workflow title, then press enter.")
 else:
-    workflow_base_path = f"{contact_email}/{slugify(workflow_title)}"
+    workflow_base_path = (
+        f"{string_to_safe_directory_name(contact_email)}/{slugify(workflow_title)}"
+    )
     workflow_pipeline_path = f"{workflow_base_path}/pipeline.json"
     workflow_data_path = f"{workflow_base_path}/data"
-
+    st.write(
+        "If you've filled this form in before, and would like to edit your response or add more information, click this button to load your previous response into the form."
+    )
     edit = st.button("load existing workflow for editing?")
     if edit:
         with st.empty():
@@ -74,65 +89,24 @@ else:
 
     st.write("## About your workflow")
     st.text_area(
-        "Describe what your workflow achieves",
-        key="workflow_description",
-        height=100,
-        placeholder="Performing text analysis tasks on a corpus of documents",
-    )
-    st.text_area(
         "What research questions does this workflow could help with?",
         key="workflow_research",
         height=100,
     )
 
-    st.write("## Input data samples")
-    input_details = st.text_area(
-        label="Tell us about the input data for your workflow", key="input_details"
+    st.text_area(
+        "Describe what your workflow achieves",
+        key="workflow_description",
+        height=100,
+        placeholder="Performing text analysis tasks on a corpus of documents",
     )
-    with st.expander("What should I write here?"):
-        st.write(
-            """Tell us as much as you can about the data you use as input for your workflow. This could include things like:
-- Where does the data come from?
-- What license does it have?
-- What file format(s) is it in? How big are the files, how many files?
-- What structural properties do these files have?
-    - do the filenames mean something?
-    - if there's a spreadsheet, what are the column headers?
-    - if it represents network data, how many nodes and edges, does it have self-loops etc
-"""
-        )
-
-    st.write(
-        "If the data you use as input to your workflows is freely licensed, please upload a sample of it here."
-    )
-    input_data = st.file_uploader("Choose file(s)", accept_multiple_files=True)
-    if st.session_state["already_uploaded_filenames"]:
-        st.info(
-            f"You've uploaded these files:\n{''.join(st.session_state['already_uploaded_filenames'])}"
-        )
-
-    save_input_data = st.button("Save input data information", type="primary")
-    if save_input_data:
-        with st.empty():
-            st.info("Saving...")
-            try:
-                write_input_metadata_file_to_github(workflow_data_path, input_details)
-                write_example_data_files_to_github(workflow_data_path, input_data)
-                st.session_state["already_uploaded_filenames"] = list_input_data_dir(
-                    workflow_data_path
-                )
-                st.success("Saved input data information")
-                time.sleep(2)
-                # briefly show success message, then refresh the data shown in the info box above
-                st.experimental_rerun()
-            except Exception as e:
-                print(e)
-                st.error(
-                    "Something went wrong with saving your input data. Please let the Kiara team know, and try again later"
-                )
 
     st.write("## Workflow steps")
     st.write("Describe the individual steps you do in your workflow at the moment.")
+    st.info(
+        "There will be space for you to record additional information about the data you use as inputs to your workflow at the end of this form."
+    )
+
     for idx, step in steps.items():
         title, desc, inputs, outputs = (
             step["title"],
@@ -199,3 +173,49 @@ else:
     st.warning(
         "Don't refresh the page or close this tab until you've saved your workflow!"
     )
+
+    st.write("## Input data samples")
+    input_details = st.text_area(
+        label="Tell us about the input data for your workflow", key="input_details"
+    )
+    with st.expander("What should I write here?"):
+        st.write(
+            """Tell us as much as you can about the data you use as input for your workflow. This could include things like:
+- Where does the data come from?
+- What license does it have?
+- What file format(s) is it in? How big are the files, how many files?
+- What structural properties do these files have?
+    - do the filenames mean something?
+    - if there's a spreadsheet, what are the column headers?
+    - if it represents network data, how many nodes and edges, does it have self-loops etc
+"""
+        )
+
+    st.write(
+        "If the data you use as input to your workflows is freely licensed, please upload a sample of it here."
+    )
+    input_data = st.file_uploader("Choose file(s)", accept_multiple_files=True)
+    if st.session_state["already_uploaded_filenames"]:
+        st.info(
+            f"You've uploaded these files:\n{''.join(st.session_state['already_uploaded_filenames'])}"
+        )
+
+    save_input_data = st.button("Save input data information", type="primary")
+    if save_input_data:
+        with st.empty():
+            st.info("Saving...")
+            try:
+                write_input_metadata_file_to_github(workflow_data_path, input_details)
+                write_example_data_files_to_github(workflow_data_path, input_data)
+                st.session_state["already_uploaded_filenames"] = list_input_data_dir(
+                    workflow_data_path
+                )
+                st.success("Saved input data information")
+                time.sleep(2)
+                # briefly show success message, then refresh the data shown in the info box above
+                st.experimental_rerun()
+            except Exception as e:
+                print(e)
+                st.error(
+                    "Something went wrong with saving your input data. Please let the Kiara team know, and try again later"
+                )
