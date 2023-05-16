@@ -19,6 +19,6 @@ github_api_key = "github_pat_XXXXXXXXXX"
 
 `github_repo_path` is where the streamlit app will read and write responses.
 
-`github_api_key` is a GitHub [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) with permissions to read and write files in the repo you specified in `github_repo_path`.
+`github_api_key` is a GitHub [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token), created for the account/organization which owns the repo you specified in `github_repo_path`, and with permissions to read and write files in that repo .
 
 To run the app, install the requirements from `requirements.txt`, then run `streamlit run workflows.py`
