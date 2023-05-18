@@ -72,7 +72,7 @@ else:
     st.write(
         "If you've filled this form in before, and would like to edit your response or add more information, click this button to load your previous response into the form."
     )
-    edit = st.button("load existing workflow for editing?")
+    edit = st.button("load existing workflow for editing")
     if edit:
         with st.empty():
             st.info("Looking for existing workflow")
@@ -90,7 +90,7 @@ else:
 
     st.write("## About your workflow")
     st.text_area(
-        "What research questions does this workflow could help with?",
+        "What research questions does this workflow help with?",
         key="workflow_research",
         height=100,
         placeholder="In this network, who is 'important' based whether they connect different sections or communities, or whether they are disruptive to effective communications?"
