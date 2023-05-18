@@ -38,21 +38,21 @@ else:
     st.session_state["already_uploaded_filenames"] = already_uploaded_filenames
 
 
-st.write("# Kiara workflow collection")
-# TODO: explain what Kiara is and give a link to docs, explain what we mean by a workflow.
+st.write("# _kiara_ workflow collection")
+st.write("[_kiara_](https://dharpa.org/kiara.documentation/latest/) is a data orchestration engine developed by the DHARPA project. It uses a modular approach to let users re-use tried and tested data orchestration pipelines, as well as create new ones from existing building blocks. It also helps you manage your research data, and augment it with automatically-, semi-automatically-, and manually- created metadata.")
 st.write(
-    """The Kiara project is collecting information about the research workflows used by current researchers.
-This information will be used to inform the development of kiara 'modules', to ensure modules are developed to address the common steps in research workflows.
+    """The team behind _kiara_ is collecting information about the research workflows used by current researchers.
+This information will be used to inform the development of _kiara_ modules, to ensure modules are developed to address the common steps in research workflows.
 
-Any information you provide will be stored in a private repository on GitHub, accessible only to the team working on kiara.
+Any information you provide will be stored in a private repository on GitHub, accessible only to the team working on _kiara_. 
 
-If you choose to provide an email address, the kiara team may contact you with further questions about your research workflows.
-Your email address will not be used for any other purpose, and will not be shared outside the Kiara team."""
+If you choose to provide an email address, the _kiara_ team may contact you with further questions about your research workflows.
+Your email address will not be used for any other purpose, and will not be shared outside the team."""
 )
 
 contact_email = st.text_input("Name or email address", key="contact_email", placeholder="you@example.com")
 st.checkbox(
-    "I give permission for the Kiara team to contact me about this workflow (optional).",
+    "I give permission for the _kiara_ team to contact me about this workflow (optional).",
     key="contact_consent",
 )
 workflow_title = st.text_input(
@@ -85,7 +85,7 @@ else:
             except Exception as e:
                 print(e)
                 st.error(
-                    "Something went wrong with loading your workflow. Please let the Kiara team know, and try again later."
+                    "Something went wrong with loading your workflow. Please let the _kiara_ team know, and try again later."
                 )
 
     st.write("## About your workflow")
@@ -169,7 +169,7 @@ else:
             except Exception as e:
                 print(e)
                 st.error(
-                    f"Something went wrong with saving your workflow. Please let the Kiara team know, and try again later.\nHere's a representation of your workflow, which you can send to the Kiara team: \n {pipeline_config.dict() if pipeline_config else st.session_state}"
+                    f"Something went wrong with saving your workflow. Please let the _kiara_ team know, and try again later.\nHere's a representation of your workflow, which you can send to the _kiara_ team: \n {pipeline_config.dict() if pipeline_config else st.session_state}"
                 )
 
     st.warning(
@@ -219,7 +219,7 @@ else:
             except Exception as e:
                 print(e)
                 st.error(
-                    "Something went wrong with saving your input data. Please let the Kiara team know, and try again later"
+                    "Something went wrong with saving your input data. Please let the _kiara_ team know, and try again later"
                 )
 
     st.write('## Save a copy of your responses')
