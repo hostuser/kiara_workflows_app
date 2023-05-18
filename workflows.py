@@ -49,7 +49,7 @@ If you choose to provide an email address, the kiara team may contact you with f
 Your email address will not be used for any other purpose, and will not be shared outside the Kiara team."""
 )
 
-contact_email = st.text_input("Name or email address", key="contact_email")
+contact_email = st.text_input("Name or email address", key="contact_email", placeholder="you@example.com")
 st.checkbox(
     "I give permission for the Kiara team to contact me about this workflow (optional).",
     key="contact_consent",
@@ -92,13 +92,14 @@ else:
         "What research questions does this workflow could help with?",
         key="workflow_research",
         height=100,
+        placeholder="In this network, who is 'important' based whether they connect different sections or communities, or whether they are disruptive to effective communications?"
     )
 
     st.text_area(
         "Describe what your workflow achieves",
         key="workflow_description",
         height=100,
-        placeholder="Performing text analysis tasks on a corpus of documents",
+        placeholder="Identifies cut-points and intermediaries in a network",
     )
 
     st.write("## Workflow steps")
@@ -119,25 +120,25 @@ else:
             "What does this step do? (required)",
             value=title,
             key=f"title_step_{idx}",
-            placeholder="Load network data into a Python data structure",
+            placeholder="Load a CSV file of interactions for a network",
         )
         steps[idx]["inputs"] = step_input = st.text_area(
             "What are the inputs for this step?",
             value=inputs,
             key=f"inputs_step_{idx}",
-            placeholder="Network data from journals, stored in 3 CSV files, which come from...",
+            placeholder="Epistolary data in a CSV file ('source' and 'target' columns) and node identifiers",
         )
         steps[idx]["outputs"] = step_output = st.text_area(
             "What are the outputs of this step?",
             value=outputs,
             key=f"outputs_step_{idx}",
-            placeholder="A networkX graph structure from ",
+            placeholder="A network object constructed from the node and edges tables",
         )
         steps[idx]["desc"] = st.text_area(
-            "Any technical details about how you do this step currently?",
+            "Any technical details about how you do this step currently? What existing software or packages do you use?",
             value=desc,
             key=f"desc_step_{idx}",
-            placeholder="What existing software or packages do you use?",
+            placeholder="Using the networkX python library to construct a graph object from the CSV file",
         )
 
     add_step = st.button("Add step")
