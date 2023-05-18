@@ -146,7 +146,6 @@ else:
     if add_step:
         new_step_id = len(steps.keys())
         steps[new_step_id] = {"title": "", "desc": "", "inputs": "", "outputs": ""}
-        st.write(st.session_state)
         st.experimental_rerun()
 
     create = st.button("Save workflow", type="primary")
