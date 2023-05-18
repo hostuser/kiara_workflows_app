@@ -148,7 +148,7 @@ else:
         steps[new_step_id] = {"title": "", "desc": "", "inputs": "", "outputs": ""}
         st.experimental_rerun()
 
-    create = st.button("Save workflow", type="primary")
+    create = st.button("Save workflow", type="primary", use_container_width=True)
     if create:
         with st.empty():
             st.info("Saving...")
