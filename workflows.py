@@ -14,6 +14,7 @@ from util import (
     list_input_data_dir,
     load_and_parse_workflow_file,
     session_state_to_pipeline_config,
+    session_state_to_txt,
     write_example_data_files_to_github,
     write_file_to_github,
     write_input_metadata_file_to_github,
@@ -220,3 +221,12 @@ else:
                 st.error(
                     "Something went wrong with saving your input data. Please let the Kiara team know, and try again later"
                 )
+
+    st.write('## Save a copy of your responses')
+    st.info('Click the button below to download a text file containing your responses for future reference.')
+    st.download_button(
+        "Download your responses",
+        session_state_to_txt(),
+        file_name="kiara_workflow.txt",
+        use_container_width=True
+    )

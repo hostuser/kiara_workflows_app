@@ -187,3 +187,18 @@ def string_to_safe_directory_name(inp: str) -> str:
     safe_chars = string.ascii_letters + string.digits + " -_.@"
     filtered = "".join([c for c in inp if c in safe_chars]).strip()
     return filtered if 0 < len(filtered) < 128 else "unknown_user"
+
+
+def session_state_to_txt() -> str:
+    summary = f'# {st.session_state.get("workflow_title")}\n\n{st.session_state.get("workflow_description").strip()}'
+    about = f'## Research questions\n\n{st.session_state.get("workflow_research")}'
+    inputs = f'## Input data\n\n{st.session_state.get("input_details")}'
+    sections = [summary, about, inputs, "## Steps"]
+    for step_idx in st.session_state.get("steps").keys():
+        step = st.session_state.get("steps")[step_idx]
+        sections.append(
+            f"""### {step['title']}\n{step.get('desc') if step.get('desc') else ''}
+- Inputs: {step.get('inputs') if step.get('inputs') else 'not specified'}
+- Outputs: {step.get('outputs') if step.get('outputs') else 'not specified'}"""
+        )
+    return "\n\n".join(sections)
