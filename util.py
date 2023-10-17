@@ -12,10 +12,9 @@ from github.ContentFile import ContentFile
 from github.InputGitAuthor import InputGitAuthor
 from githublfs import commit_lfs_file
 from kiara.models.module.pipeline import PipelineConfig
-from streamlit.elements.file_uploader import SomeUploadedFiles
 
 from kiara_plugin.streamlit.modules import DummyModuleConfig
-
+from streamlit.elements.widgets.file_uploader import SomeUploadedFiles
 
 REPO_NAME = st.secrets.get("github_repo_path")
 GITHUB_API_KEY = st.secrets.get("github_api_key")
