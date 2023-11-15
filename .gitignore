@@ -2,3 +2,5 @@ venv
 .streamlit
 .idea
 __pycache__
+.pixi
+pixi.lock

@@ -1,0 +1,19 @@
+[project]
+name = "kiara_workflows_app"
+version = "0.2.0"
+description = "Streamlit app to collect kiara workflows and input data"
+authors = []
+channels = ["conda-forge", "dharpa"]
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
+
+[tasks]
+install-env = ".pixi/env/bin/pip install -r requirements.txt"
+show-versions = ".pixi/env/bin/kiara --version"
+delete-context = ".pixi/env/bin/kiara context delete"
+workflows-app = ".pixi/env/bin/streamlit run workflows.py"
+kiara = ".pixi/env/bin/kiara"
+
+
+[dependencies]
+python = ">=3.10.0,<3.11.0"
+pip = "23.3.1.*"
