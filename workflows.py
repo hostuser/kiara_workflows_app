@@ -7,6 +7,8 @@ from boltons.strutils import slugify
 
 from kiara.api import KiaraAPI
 from kiara.exceptions import InvalidPipelineStepConfig
+from kiara.models.module.pipeline import PipelineConfig
+
 import kiara_plugin.streamlit as kst
 
 from util import (
@@ -154,9 +156,9 @@ else:
             st.info("Saving...")
             pipeline_config = None
             try:
-                pipeline_config = session_state_to_pipeline_config()
+                pipeline_config: PipelineConfig = session_state_to_pipeline_config()
                 write_file_to_github(
-                    workflow_pipeline_path, json.dumps(pipeline_config.dict(), indent=2)
+                    workflow_pipeline_path, pipeline_config.model_dump_json(indent=2)
                 )
                 st.success("Saved workflow")
                 time.sleep(3)
@@ -168,7 +170,7 @@ else:
             except Exception as e:
                 print(e)
                 st.error(
-                    f"Something went wrong with saving your workflow. Please let the _kiara_ team know, and try again later.\nHere's a representation of your workflow, which you can send to the _kiara_ team: \n {pipeline_config.dict() if pipeline_config else st.session_state}"
+                    f"Something went wrong with saving your workflow. Please let the _kiara_ team know, and try again later.\nHere's a representation of your workflow, which you can send to the _kiara_ team: \n {pipeline_config.model_dump() if pipeline_config else st.session_state}"
                 )
 
     st.warning(
